@@ -19,12 +19,10 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
   const { isDone, toggleDone } = useProgress()
   const [currentDateKey, setCurrentDateKey] = useState(selectedDate || todayKey)
   const [isHovered, setIsHovered] = useState(false)
-  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const isSwipingRef = useRef(false)
-  
-  // Touch event handling for fallback
-  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null)
+  const touchStartXRef = useRef<number>(0)
+  const touchStartTimeRef = useRef<number>(0)
   
   // Auto-sync to today's key when it changes (but only if no external date is selected)
   useEffect(() => {
@@ -49,21 +47,14 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
   const navigateToDay = (direction: 'prev' | 'next') => {
     if (isSwipingRef.current) return // Prevent multiple navigation calls during swipe
     
-    // Show swipe direction indicator
-    setSwipeDirection(direction === 'prev' ? 'right' : 'left')
-    
     const newIndex = direction === 'prev' ? currentIndex - 1 : currentIndex + 1
     if (newIndex >= 0 && newIndex < isoKeys.length) {
       setCurrentDateKey(isoKeys[newIndex])
     }
-    
-    // Clear swipe direction after animation
-    setTimeout(() => {
-      setSwipeDirection(null)
-    }, 300)
   }
   
-  const handleToggleComplete = () => {
+  const handleToggleComplete = (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent swipe gesture from interfering
     const wasCompleted = isDone(currentDateKey)
     toggleDone(currentDateKey)
     
@@ -77,48 +68,41 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
     }
   }
   
-  // Native touch event handlers (fallback)
+  // Native touch event handlers for mobile fallback
   const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0]
-    touchStartRef.current = {
-      x: touch.clientX,
-      y: touch.clientY,
-      time: Date.now()
+    touchStartXRef.current = e.touches[0].clientX
+    touchStartTimeRef.current = Date.now()
+    isSwipingRef.current = false
+  }
+  
+  const handleTouchMove = (e: React.TouchEvent) => {
+    // Prevent scrolling during horizontal swipes
+    if (Math.abs(e.touches[0].clientX - touchStartXRef.current) > 10) {
+      e.preventDefault()
     }
   }
   
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!touchStartRef.current) return
+    const touchEndX = e.changedTouches[0].clientX
+    const touchEndTime = Date.now()
+    const deltaX = touchEndX - touchStartXRef.current
+    const deltaTime = touchEndTime - touchStartTimeRef.current
     
-    const touch = e.changedTouches[0]
-    const deltaX = touch.clientX - touchStartRef.current.x
-    const deltaY = touch.clientY - touchStartRef.current.y
-    const deltaTime = Date.now() - touchStartRef.current.time
+    // Check if it's a swipe gesture
+    const distance = Math.abs(deltaX)
+    const velocity = distance / deltaTime
     
-    // Only process as swipe if:
-    // 1. Horizontal movement is greater than vertical
-    // 2. Movement is significant (> 50px)
-    // 3. Gesture was relatively quick (< 500ms)
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50 && deltaTime < 500) {
+    if (distance > 50 && velocity > 0.3 && deltaTime < 300) {
       isSwipingRef.current = true
-      e.preventDefault()
-      
       if (deltaX > 0) {
         navigateToDay('prev') // Right swipe = previous day
       } else {
         navigateToDay('next') // Left swipe = next day
       }
-      
-      // Reset swipe state
-      setTimeout(() => {
-        isSwipingRef.current = false
-      }, 100)
     }
-    
-    touchStartRef.current = null
   }
   
-  // Swipe gesture handling
+  // Improved gesture handling with better mobile support
   const bind = useGesture(
     {
       onDragStart: () => {
@@ -127,13 +111,12 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
       onDrag: ({ movement: [mx], direction: [dx], velocity: [vx], cancel, event }) => {
         if (isSwipingRef.current) return // Already handled this swipe
         
-        // Prevent scrolling during horizontal swipe
-        if (Math.abs(mx) > 15) {
+        // Prevent default touch behavior to avoid conflicts
+        if (event.type.includes('touch')) {
           event.preventDefault()
         }
         
-        // More sensitive detection for touch devices
-        if (Math.abs(mx) > 30 || Math.abs(vx) > 0.3) {
+        if (Math.abs(mx) > 40 || Math.abs(vx) > 0.5) {
           isSwipingRef.current = true
           cancel()
           if (dx > 0) {
@@ -153,10 +136,9 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
     {
       drag: {
         axis: 'x',
-        threshold: 5,
-        preventScroll: true,
-        pointer: { touch: true },
-        filterTaps: true,
+        threshold: 10,
+        pointer: { touch: true }, // Enable touch support
+        preventScroll: true, // Prevent scrolling during gesture
       },
     }
   )
@@ -168,40 +150,22 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Swipe Direction Indicator */}
-      {swipeDirection && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
-          <div className="bg-black/20 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center">
-            {swipeDirection === 'left' ? (
-              <>
-                <ChevronLeft className="w-4 h-4 mr-1" />
-                Next Day
-              </>
-            ) : (
-              <>
-                <ChevronRight className="w-4 h-4 mr-1" />
-                Previous Day
-              </>
-            )}
-          </div>
-        </div>
-      )}
-      
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentDateKey}
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{ duration: 0.2 }}
-          className="bg-card border rounded-lg shadow-sm overflow-hidden"
-        >
+             <AnimatePresence mode="wait">
+         <motion.div
+           key={currentDateKey}
+           initial={{ opacity: 0, x: 50 }}
+           animate={{ opacity: 1, x: 0 }}
+           exit={{ opacity: 0, x: -50 }}
+           transition={{ duration: 0.2 }}
+           className="bg-card border rounded-lg shadow-sm overflow-hidden"
+         >
            <div 
              {...bind()} 
-             className="h-full w-full select-none" 
-             style={{ touchAction: 'pan-y pinch-zoom' }}
+             className="h-full w-full"
              onTouchStart={handleTouchStart}
+             onTouchMove={handleTouchMove}
              onTouchEnd={handleTouchEnd}
+             style={{ touchAction: 'pan-y' }} // Allow vertical scrolling, prevent horizontal
            >
           {/* Header */}
           <div className="px-4 py-3 border-b bg-gradient-to-r from-baby-pink-50 to-navy-50 border-baby-pink-200">
@@ -214,10 +178,7 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onCalendarClick()
-                  }}
+                  onClick={onCalendarClick}
                   className="hidden md:flex text-navy-600 hover:text-navy-800 hover:bg-baby-pink-100"
                 >
                   <Calendar className="h-4 w-4" />
@@ -243,15 +204,12 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
           <div className="px-4 py-3 border-t border-baby-pink-200 bg-gradient-to-r from-white to-baby-pink-50">
             <Button
               variant={isCompleted ? 'default' : 'outline'}
-              onClick={(e) => {
-                e.stopPropagation()
-                handleToggleComplete()
-              }}
+              onClick={handleToggleComplete}
               className={cn(
-                "w-full transition-all duration-200",
+                "w-full transition-all duration-200 touch-manipulation min-h-[48px]",
                 isCompleted 
-                  ? "bg-emerald-500 hover:bg-emerald-600 text-white" 
-                  : "border-navy-200 text-navy-700 hover:bg-baby-pink-50 hover:border-baby-pink-300"
+                  ? "bg-emerald-500 hover:bg-emerald-600 text-white active:bg-emerald-700" 
+                  : "border-navy-200 text-navy-700 hover:bg-baby-pink-50 hover:border-baby-pink-300 active:bg-baby-pink-100"
               )}
             >
               <Check className={cn('mr-2 h-4 w-4', isCompleted ? 'text-white' : 'text-navy-600')} />

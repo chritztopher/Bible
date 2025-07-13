@@ -30,6 +30,17 @@ export function DayRow({ dayKey, isToday, completed, open, onToggle }: DayRowPro
     }
   }
   
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onToggle(dayKey)
+  }
+  
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onToggle(dayKey)
+  }
+  
   const getDayStatusColor = () => {
     if (completed) return 'bg-emerald-500'
     if (isToday) return 'bg-blue-500'
@@ -43,11 +54,13 @@ export function DayRow({ dayKey, isToday, completed, open, onToggle }: DayRowPro
       isToday && !open && 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200'
     )}>
       <button
-        onClick={() => onToggle(dayKey)}
+        onClick={handleClick}
+        onTouchEnd={handleTouchEnd}
         onKeyDown={handleKeyDown}
         aria-expanded={open}
         aria-controls={`panel-${dayKey}`}
-        className="group w-full flex items-start gap-3 py-2 px-4 text-left hover:bg-baby-pink-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="group w-full flex items-start gap-3 py-3 px-4 text-left hover:bg-baby-pink-50 active:bg-baby-pink-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 touch-manipulation min-h-[48px]"
+        style={{ touchAction: 'manipulation' }}
       >
         <span className={cn(
           'mt-2 w-2 h-2 rounded-full flex-shrink-0',

@@ -1,8 +1,7 @@
-import { motion } from 'framer-motion'
-import { useProgress } from '@/hooks/useProgress'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { AnimatePresence } from 'framer-motion'
+import { useProgress } from '@/hooks/useProgress'
 
 interface DayDisclosureProps {
   open: boolean
@@ -13,6 +12,12 @@ interface DayDisclosureProps {
 export function DayDisclosure({ open, readings, dayKey }: DayDisclosureProps) {
   const { isDone, toggleDone } = useProgress()
   const completed = isDone(dayKey)
+  
+  const handleToggleComplete = (e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+    toggleDone(dayKey)
+  }
   
   return (
     <AnimatePresence>
@@ -36,13 +41,15 @@ export function DayDisclosure({ open, readings, dayKey }: DayDisclosureProps) {
             
             <div className="mt-3 pt-3 border-t border-baby-pink-200">
               <button
-                onClick={() => toggleDone(dayKey)}
+                onClick={handleToggleComplete}
+                onTouchEnd={handleToggleComplete}
                 className={cn(
-                  'flex items-center space-x-2 text-sm px-3 py-1.5 rounded-md transition-all duration-200',
+                  'flex items-center space-x-2 text-sm px-3 py-2 rounded-md transition-all duration-200 touch-manipulation min-h-[44px] w-full justify-center',
                   completed 
-                    ? 'bg-emerald-500 text-white hover:bg-emerald-600' 
-                    : 'bg-navy-100 text-navy-700 hover:bg-baby-pink-100 border border-navy-200'
+                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 active:bg-emerald-700' 
+                    : 'bg-navy-100 text-navy-700 hover:bg-baby-pink-100 active:bg-baby-pink-200 border border-navy-200'
                 )}
+                style={{ touchAction: 'manipulation' }}
               >
                 <Check className="w-3 h-3" />
                 <span>{completed ? 'Completed' : 'Mark Complete'}</span>
