@@ -54,28 +54,28 @@ export function Countdown({ target, className }: CountdownProps) {
       <div className="flex items-center justify-center gap-4 text-5xl font-bold">
         <div className="flex flex-col items-center">
           <span className="tabular-nums">{timeLeft.days}</span>
-          <span className="text-sm font-normal text-muted-foreground">
+          <span className="text-sm font-normal text-pink-300">
             {timeLeft.days === 1 ? 'day' : 'days'}
           </span>
         </div>
         <span className="text-muted-foreground">:</span>
         <div className="flex flex-col items-center">
           <span className="tabular-nums">{timeLeft.hours.toString().padStart(2, '0')}</span>
-          <span className="text-sm font-normal text-muted-foreground">
+          <span className="text-sm font-normal text-pink-300">
             {timeLeft.hours === 1 ? 'hour' : 'hours'}
           </span>
         </div>
         <span className="text-muted-foreground">:</span>
         <div className="flex flex-col items-center">
           <span className="tabular-nums">{timeLeft.minutes.toString().padStart(2, '0')}</span>
-          <span className="text-sm font-normal text-muted-foreground">
+          <span className="text-sm font-normal text-pink-300">
             {timeLeft.minutes === 1 ? 'min' : 'mins'}
           </span>
         </div>
         <span className="text-muted-foreground">:</span>
         <div className="flex flex-col items-center">
           <span className="tabular-nums">{timeLeft.seconds.toString().padStart(2, '0')}</span>
-          <span className="text-sm font-normal text-muted-foreground">
+          <span className="text-sm font-normal text-pink-300">
             {timeLeft.seconds === 1 ? 'sec' : 'secs'}
           </span>
         </div>
