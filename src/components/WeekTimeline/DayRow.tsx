@@ -34,21 +34,21 @@ export function DayRow({ dayKey, index, isToday, completed, open, onToggle }: Da
   const getDayStatusColor = () => {
     if (completed) return 'bg-emerald-500'
     if (isToday) return 'bg-blue-500'
-    return 'bg-slate-400'
+    return 'bg-navy-400'
   }
   
   return (
     <li className={cn(
       'rounded-md overflow-hidden transition-colors',
-      open && 'bg-slate-50 dark:bg-slate-800/40',
-      isToday && !open && 'bg-blue-50 dark:bg-blue-900/20'
+      open && 'bg-gradient-to-r from-baby-pink-50 to-navy-50',
+      isToday && !open && 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200'
     )}>
       <button
         onClick={() => onToggle(dayKey)}
         onKeyDown={handleKeyDown}
         aria-expanded={open}
         aria-controls={`panel-${dayKey}`}
-        className="group w-full flex items-start gap-3 py-2 px-4 text-left hover:bg-muted/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="group w-full flex items-start gap-3 py-2 px-4 text-left hover:bg-baby-pink-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
         <span className={cn(
           'mt-2 w-2 h-2 rounded-full flex-shrink-0',
@@ -58,22 +58,22 @@ export function DayRow({ dayKey, index, isToday, completed, open, onToggle }: Da
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <span className={cn(
-                'font-medium text-sm',
+                'font-medium text-sm text-navy-800',
                 isToday && 'font-semibold'
               )}>
                 {dayLabel}
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-navy-600">
                 {formattedDate}
               </span>
             </div>
             <ChevronDown className={cn(
-              'w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-all',
+              'w-4 h-4 text-navy-400 group-hover:text-navy-600 transition-all',
               open ? 'rotate-180' : 'rotate-0'
             )} />
           </div>
           {!open && (
-            <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-1">
+            <p className="text-xs text-navy-500 truncate mt-1">
               {previewText}
             </p>
           )}

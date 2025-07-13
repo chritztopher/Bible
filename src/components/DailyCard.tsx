@@ -117,18 +117,18 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
          >
            <div {...bind()} className="h-full w-full">
           {/* Header */}
-          <div className="px-4 py-3 border-b bg-muted/50">
+          <div className="px-4 py-3 border-b bg-gradient-to-r from-baby-pink-50 to-navy-50 border-baby-pink-200">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold">{dayLabel}</h2>
-                <p className="text-sm text-muted-foreground">{formattedDate}</p>
+                <h2 className="text-lg font-semibold text-navy-800">{dayLabel}</h2>
+                <p className="text-sm text-navy-600">{formattedDate}</p>
               </div>
               {onCalendarClick && (
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={onCalendarClick}
-                  className="hidden md:flex"
+                  className="hidden md:flex text-navy-600 hover:text-navy-800 hover:bg-baby-pink-100"
                 >
                   <Calendar className="h-4 w-4" />
                 </Button>
@@ -137,26 +137,31 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
           </div>
           
           {/* Readings */}
-          <div className="p-4 space-y-2">
+          <div className="p-4 space-y-2 bg-white/80 backdrop-blur-sm">
             {readings.map((reading, index) => (
               <div
                 key={index}
                 className="flex items-center space-x-2 text-sm"
               >
-                <div className="w-1 h-1 bg-muted-foreground rounded-full flex-shrink-0" />
-                <span>{reading}</span>
+                <div className="w-1 h-1 bg-baby-pink-400 rounded-full flex-shrink-0" />
+                <span className="text-navy-700">{reading}</span>
               </div>
             ))}
           </div>
           
           {/* Completion Toggle */}
-          <div className="px-4 py-3 border-t">
+          <div className="px-4 py-3 border-t border-baby-pink-200 bg-gradient-to-r from-white to-baby-pink-50">
             <Button
               variant={isCompleted ? 'default' : 'outline'}
               onClick={handleToggleComplete}
-              className="w-full"
+              className={cn(
+                "w-full transition-all duration-200",
+                isCompleted 
+                  ? "bg-emerald-500 hover:bg-emerald-600 text-white" 
+                  : "border-navy-200 text-navy-700 hover:bg-baby-pink-50 hover:border-baby-pink-300"
+              )}
             >
-              <Check className={cn('mr-2 h-4 w-4', isCompleted ? 'text-white' : 'text-muted-foreground')} />
+              <Check className={cn('mr-2 h-4 w-4', isCompleted ? 'text-white' : 'text-navy-600')} />
               {isCompleted ? 'Completed' : 'Mark Complete'}
             </Button>
                      </div>
@@ -174,7 +179,7 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
                 onClick={() => navigateToDay('prev')}
-                className="absolute -left-12 top-1/2 -translate-y-1/2 hidden md:flex items-center justify-center w-10 h-10 bg-background border rounded-full shadow-md hover:bg-muted"
+                className="absolute -left-12 top-1/2 -translate-y-1/2 hidden md:flex items-center justify-center w-10 h-10 bg-white/80 backdrop-blur-sm border border-baby-pink-200 rounded-full shadow-md hover:bg-baby-pink-50 text-navy-600 hover:text-navy-800"
               >
                 <ChevronLeft className="h-5 w-5" />
               </motion.button>
@@ -185,7 +190,7 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
                 onClick={() => navigateToDay('next')}
-                className="absolute -right-12 top-1/2 -translate-y-1/2 hidden md:flex items-center justify-center w-10 h-10 bg-background border rounded-full shadow-md hover:bg-muted"
+                className="absolute -right-12 top-1/2 -translate-y-1/2 hidden md:flex items-center justify-center w-10 h-10 bg-white/80 backdrop-blur-sm border border-baby-pink-200 rounded-full shadow-md hover:bg-baby-pink-50 text-navy-600 hover:text-navy-800"
               >
                 <ChevronRight className="h-5 w-5" />
               </motion.button>

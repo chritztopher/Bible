@@ -40,12 +40,12 @@ export default function Home() {
   }
   
   return (
-    <main className="min-h-screen flex flex-col items-center px-4 py-6 space-y-8">
+    <main className="min-h-screen flex flex-col items-center px-4 py-6 space-y-8 bg-gradient-to-br from-baby-pink-50 via-white to-navy-50">
       {/* Jump to Date Button - Top Right Corner */}
       <div className="fixed top-4 right-4 z-10">
         <CalendarPopover 
           trigger={
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="border-navy-200 text-navy-700 hover:bg-baby-pink-50 hover:border-baby-pink-300">
               <Calendar className="mr-2 h-4 w-4" />
               Jump to Date
             </Button>
@@ -62,9 +62,9 @@ export default function Home() {
           <div className="mt-4">
             <Countdown 
               target="2025-10-19T00:00:00-04:00"
-              className="text-3xl sm:text-4xl md:text-5xl font-bold"
+              className="text-3xl sm:text-4xl md:text-5xl font-bold text-navy-800"
             />
-            <p className="text-sm text-center mt-2 text-muted-foreground">
+            <p className="text-sm text-center mt-2 text-navy-600">
               Time until Tatum Ann and Christopher see each other
             </p>
           </div>
@@ -81,11 +81,11 @@ export default function Home() {
       </div>
       
       {/* Progress Summary */}
-      <div className="text-center space-y-1">
-        <div className="text-2xl font-bold">
+      <div className="text-center space-y-1 bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-baby-pink-200">
+        <div className="text-2xl font-bold text-navy-800">
           {completedCount} of {totalDays} days completed
         </div>
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-navy-600">
           {Math.round(completionPercentage)}% progress through the reading plan
         </div>
       </div>

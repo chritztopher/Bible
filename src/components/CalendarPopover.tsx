@@ -99,9 +99,9 @@ export function CalendarPopover({ trigger, onDateSelect }: CalendarPopoverProps)
       case 'today':
         return 'bg-blue-500 text-white hover:bg-blue-600 ring-2 ring-blue-500 ring-offset-2'
       case 'pending':
-        return 'bg-slate-400/20 text-slate-700 hover:bg-slate-400/30'
+        return 'bg-navy-100 text-navy-700 hover:bg-baby-pink-100 border border-navy-200'
       default:
-        return 'bg-slate-400/10 text-slate-400 cursor-not-allowed'
+        return 'bg-baby-pink-50 text-baby-pink-400 cursor-not-allowed border border-baby-pink-200'
     }
   }
   
@@ -118,9 +118,9 @@ export function CalendarPopover({ trigger, onDateSelect }: CalendarPopoverProps)
       <PopoverTrigger asChild>
         {trigger}
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-4 max-h-96 overflow-y-auto" align="end" ref={popoverRef}>
+      <PopoverContent className="w-80 p-4 max-h-96 overflow-y-auto bg-white/95 backdrop-blur-sm border border-baby-pink-200" align="end" ref={popoverRef}>
         <div className="space-y-4">
-          <div className="text-sm font-medium">Select a date</div>
+          <div className="text-sm font-medium text-navy-800">Select a date</div>
           {months.map((month) => {
             const monthStart = startOfMonth(month)
             const monthEnd = endOfMonth(month)
@@ -132,13 +132,13 @@ export function CalendarPopover({ trigger, onDateSelect }: CalendarPopoverProps)
             
             return (
               <div key={month.getTime()} className="space-y-2">
-                <div className="text-sm font-medium text-center">
+                <div className="text-sm font-medium text-center text-navy-700 bg-gradient-to-r from-baby-pink-50 to-navy-50 rounded-md py-2">
                   {format(month, 'MMMM yyyy')}
                 </div>
                 
                 <div className="grid grid-cols-7 gap-1">
                   {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="text-center text-muted-foreground font-medium p-2">
+                    <div key={day} className="text-center text-navy-600 font-medium p-2 text-xs">
                       {day}
                     </div>
                   ))}
@@ -157,7 +157,7 @@ export function CalendarPopover({ trigger, onDateSelect }: CalendarPopoverProps)
                         onClick={() => handleDateClick(date)}
                         disabled={!canClick}
                         className={cn(
-                          'w-10 h-10 rounded-md text-sm font-medium transition-colors',
+                          'w-10 h-10 rounded-md text-sm font-medium transition-all duration-200',
                           'flex items-center justify-center relative',
                           getDateStyles(status)
                         )}
@@ -176,18 +176,18 @@ export function CalendarPopover({ trigger, onDateSelect }: CalendarPopoverProps)
             )
           })}
           
-          <div className="grid grid-cols-3 gap-2 text-xs">
+          <div className="grid grid-cols-3 gap-2 text-xs bg-gradient-to-r from-baby-pink-50 to-navy-50 rounded-md p-2">
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-emerald-500 rounded-full" />
-              <span>Completed</span>
+              <span className="text-navy-700">Completed</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-blue-500 rounded-full" />
-              <span>Today</span>
+              <span className="text-navy-700">Today</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-slate-400 rounded-full" />
-              <span>Pending</span>
+              <div className="w-2 h-2 bg-navy-400 rounded-full" />
+              <span className="text-navy-700">Pending</span>
             </div>
           </div>
         </div>

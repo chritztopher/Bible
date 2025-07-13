@@ -1,5 +1,9 @@
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { useProgress } from '@/hooks/useProgress'
+import { Check } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { AnimatePresence } from 'framer-motion'
 
 interface DayDisclosureProps {
   open: boolean
@@ -8,45 +12,46 @@ interface DayDisclosureProps {
 }
 
 export function DayDisclosure({ open, readings, dayKey }: DayDisclosureProps) {
-  const [reducedMotion, setReducedMotion] = useState(false)
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-    setReducedMotion(mediaQuery.matches)
-    
-    const handleChange = (e: MediaQueryListEvent) => {
-      setReducedMotion(e.matches)
-    }
-    
-    mediaQuery.addEventListener('change', handleChange)
-    return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [])
-
-  const motionProps = reducedMotion ? {} : {
-    initial: false,
-    animate: open ? "open" : "collapsed",
-    variants: {
-      open: { height: "auto", opacity: 1 },
-      collapsed: { height: 0, opacity: 0 }
-    },
-    transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] }
-  }
-
+  const { isDone, toggleDone } = useProgress()
+  const completed = isDone(dayKey)
+  
   return (
-    <motion.ul
-      {...motionProps}
-      id={`panel-${dayKey}`}
-      className="overflow-hidden pl-8 pr-4"
-      style={reducedMotion ? { 
-        height: open ? 'auto' : 0, 
-        opacity: open ? 1 : 0 
-      } : {}}
-    >
-      {readings.map((reading, index) => (
-        <li key={`${dayKey}-${index}`} className="py-0.5 text-sm text-slate-600 dark:text-slate-300">
-          • {reading}
-        </li>
-      ))}
-    </motion.ul>
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="overflow-hidden"
+        >
+          <div className="px-4 pb-4 bg-gradient-to-r from-white to-baby-pink-50">
+            <div className="space-y-2">
+              {readings.map((reading, index) => (
+                <div key={index} className="flex items-center space-x-2 text-sm">
+                  <div className="w-1 h-1 bg-baby-pink-400 rounded-full flex-shrink-0" />
+                  <span className="text-navy-700">{reading}</span>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-3 pt-3 border-t border-baby-pink-200">
+              <button
+                onClick={() => toggleDone(dayKey)}
+                className={cn(
+                  'flex items-center space-x-2 text-sm px-3 py-1.5 rounded-md transition-all duration-200',
+                  completed 
+                    ? 'bg-emerald-500 text-white hover:bg-emerald-600' 
+                    : 'bg-navy-100 text-navy-700 hover:bg-baby-pink-100 border border-navy-200'
+                )}
+              >
+                <Check className="w-3 h-3" />
+                <span>{completed ? 'Completed' : 'Mark Complete'}</span>
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 } 

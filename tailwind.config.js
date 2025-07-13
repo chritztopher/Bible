@@ -51,6 +51,32 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        // Custom baby pink palette
+        'baby-pink': {
+          50: '#fdf7f8',
+          100: '#fbe8eb',
+          200: '#f7d1d8',
+          300: '#f0a8b4',
+          400: '#e67e90',
+          500: '#d85570',
+          600: '#c23858',
+          700: '#a12a47',
+          800: '#86253f',
+          900: '#72233a',
+        },
+        // Custom navy palette
+        'navy': {
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',
+          600: '#475569',
+          700: '#334155',
+          800: '#1e293b',
+          900: '#0f172a',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
