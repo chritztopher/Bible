@@ -11,7 +11,6 @@ export function ProgressRing({ percent, className }: ProgressRingProps) {
   const size = 120
   const strokeWidth = 4
   const radius = (size - strokeWidth) / 2
-  const circumference = 2 * Math.PI * radius
   
   // Calculate segments for 98 days
   const totalSegments = 98

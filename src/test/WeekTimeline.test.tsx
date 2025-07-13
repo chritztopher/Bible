@@ -6,10 +6,10 @@ import { WeekTimeline } from '../components/WeekTimeline'
 vi.mock('../hooks/usePlan', () => ({
   usePlan: () => ({
     isoKeys: ['2025-07-13', '2025-07-14', '2025-07-15'],
-    todayKey: '2025-07-14',
-    getDayLabel: (key: string) => `Day ${key === '2025-07-13' ? '1' : key === '2025-07-14' ? '2' : '3'}`,
-    getFormattedDate: (key: string) => key === '2025-07-13' ? 'Sun Jul 13' : key === '2025-07-14' ? 'Mon Jul 14' : 'Tue Jul 15',
-    getReadingsForDay: (key: string) => ['Gen 1-3', 'Gen 4-7', 'Gen 8-11', 'Job 1-5']
+    todayKey: '2025-07-13',
+    getDayLabel: (dateKey: string) => `Day ${['2025-07-13', '2025-07-14', '2025-07-15'].indexOf(dateKey) + 1}`,
+    getFormattedDate: (dateKey: string) => 'Mon Jul 13',
+    getReadingsForDay: () => ['Gen 1-3', 'Gen 4-7', 'Gen 8-11', 'Job 1-5']
   })
 }))
 

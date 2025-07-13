@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { Calendar } from 'lucide-react'
 import { usePlan } from '@/hooks/usePlan'
 import { useProgress } from '@/hooks/useProgress'
@@ -10,9 +10,8 @@ import { CalendarPopover } from '@/components/CalendarPopover'
 import { Button } from '@/components/ui/button'
 
 export default function Home() {
-  const { totalDays, todayKey } = usePlan()
+  const { totalDays } = usePlan()
   const { getCompletionPercentage, completedCount } = useProgress()
-  const [showCalendar, setShowCalendar] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const timelineRef = useRef<HTMLDivElement>(null)
   
@@ -28,7 +27,6 @@ export default function Home() {
         weekElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
     }
-    setShowCalendar(false)
     
     // Scroll to the top to show the daily card with the selected date
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -74,7 +72,7 @@ export default function Home() {
         <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl">
           <DailyCard 
             className="w-full"
-            onCalendarClick={() => setShowCalendar(true)}
+            onCalendarClick={() => {}}
             selectedDate={selectedDate || undefined}
           />
         </div>

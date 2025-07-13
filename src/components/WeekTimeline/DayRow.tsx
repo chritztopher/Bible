@@ -5,14 +5,13 @@ import { DayDisclosure } from './DayDisclosure'
 
 interface DayRowProps {
   dayKey: string
-  index: number
   isToday: boolean
   completed: boolean
   open: boolean
   onToggle: (key: string) => void
 }
 
-export function DayRow({ dayKey, index, isToday, completed, open, onToggle }: DayRowProps) {
+export function DayRow({ dayKey, isToday, completed, open, onToggle }: DayRowProps) {
   const { getReadingsForDay, getDayLabel, getFormattedDate } = usePlan()
   
   const readings = getReadingsForDay(dayKey)

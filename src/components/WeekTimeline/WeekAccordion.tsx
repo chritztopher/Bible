@@ -12,7 +12,7 @@ interface WeekAccordionProps {
 }
 
 export function WeekAccordion({ className, onDayClick }: WeekAccordionProps) {
-  const { isoKeys, todayKey, getDayLabel, getFormattedDate, getReadingsForDay } = usePlan()
+  const { isoKeys, todayKey } = usePlan()
   const { isDone } = useProgress()
   const timelineRef = useRef<HTMLDivElement>(null)
   
@@ -97,42 +97,29 @@ export function WeekAccordion({ className, onDayClick }: WeekAccordionProps) {
         className="space-y-2"
       >
         {weeks.map((week) => (
-          <AccordionItem 
-            key={week.id} 
-            value={week.id}
-            data-week={week.id}
-            className="border rounded-lg"
-          >
-            <AccordionTrigger 
-              className={cn(
-                'px-4 py-3 hover:no-underline sticky top-16 z-10 bg-white/80 backdrop-blur dark:bg-slate-900/80 rounded-t-lg',
-                'lg:relative lg:top-0 lg:bg-transparent lg:backdrop-blur-none'
-              )}
-            >
-              <div className="flex items-center justify-between w-full mr-4">
+          <AccordionItem key={week.id} value={week.id} data-week={week.id}>
+            <AccordionTrigger className="hover:no-underline px-4">
+              <div className="flex items-center justify-between w-full">
                 <div className="flex items-center space-x-3">
-                  <span className="font-medium">
-                    Week {week.number} (Days {week.startDay}-{week.endDay})
-                  </span>
+                  <span className="font-semibold">Week {week.number}</span>
                   <span className="text-sm text-muted-foreground">
-                    {week.completedDays}/{week.totalDays} done
+                    Days {week.startDay}-{week.endDay}
                   </span>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm font-medium">
+                    {week.completedDays}/{week.totalDays} completed
+                  </span>
                   <Progress 
                     value={week.completionPercentage} 
-                    className="w-24 h-1.5"
+                    className="w-20 h-2"
                   />
-                  <span className="text-xs text-muted-foreground min-w-[3ch]">
-                    {Math.round(week.completionPercentage)}%
-                  </span>
                 </div>
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4">
               <ul className="space-y-1">
-                {week.keys.map((dateKey, index) => {
-                  const dayIndex = isoKeys.indexOf(dateKey)
+                {week.keys.map((dateKey) => {
                   const isToday = dateKey === todayKey
                   const completed = isDone(dateKey)
                   const open = openDayKeys[week.id] === dateKey
@@ -141,7 +128,6 @@ export function WeekAccordion({ className, onDayClick }: WeekAccordionProps) {
                     <DayRow
                       key={dateKey}
                       dayKey={dateKey}
-                      index={dayIndex}
                       isToday={isToday}
                       completed={completed}
                       open={open}

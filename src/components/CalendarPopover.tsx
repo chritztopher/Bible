@@ -1,10 +1,9 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
-import { startOfMonth, endOfMonth, eachDayOfInterval, format, isSameDay } from 'date-fns'
+import { startOfMonth, endOfMonth, eachDayOfInterval, format } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { usePlan } from '@/hooks/usePlan'
 import { useProgress } from '@/hooks/useProgress'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Button } from '@/components/ui/button'
 
 interface CalendarPopoverProps {
   trigger: React.ReactNode

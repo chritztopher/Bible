@@ -24,8 +24,12 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+
+    /* Test types */
+    "types": ["vitest/globals"]
   },
-  "include": ["src", "vite.config.ts"],
+  "include": ["src"],
+  "exclude": ["src/test/**/*"],
   "references": [{ "path": "./tsconfig.node.json" }]
 } 

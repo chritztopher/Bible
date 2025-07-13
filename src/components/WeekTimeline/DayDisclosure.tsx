@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
 import { useProgress } from '@/hooks/useProgress'
 import { Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
