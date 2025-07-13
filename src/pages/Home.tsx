@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Calendar } from 'lucide-react'
 import { usePlan } from '@/hooks/usePlan'
 import { useProgress } from '@/hooks/useProgress'
@@ -16,6 +16,11 @@ export default function Home() {
   const timelineRef = useRef<HTMLDivElement>(null)
   
   const completionPercentage = getCompletionPercentage(totalDays)
+  
+  // Ensure page loads at the top
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
   
   // Handle calendar date selection
   const handleDateSelect = (dateKey: string) => {

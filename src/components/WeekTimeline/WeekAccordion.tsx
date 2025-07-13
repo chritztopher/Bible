@@ -15,6 +15,7 @@ export function WeekAccordion({ className, onDayClick }: WeekAccordionProps) {
   const { isoKeys, todayKey } = usePlan()
   const { isDone } = useProgress()
   const timelineRef = useRef<HTMLDivElement>(null)
+  const [hasInitialLoad, setHasInitialLoad] = useState(false)
   
   // Track which day is open in each week (one-open rule)
   const [openDayKeys, setOpenDayKeys] = useState<Record<string, string | null>>({})
@@ -67,15 +68,28 @@ export function WeekAccordion({ className, onDayClick }: WeekAccordionProps) {
     }
   }, [todayKey, currentWeekId])
   
-  // Scroll to current week on mount
+  // Mark initial load as complete after a short delay
   useEffect(() => {
-    if (timelineRef.current) {
+    const timer = setTimeout(() => {
+      setHasInitialLoad(true)
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [])
+  
+  // Only scroll to current week after initial load is complete (not on page load)
+  useEffect(() => {
+    if (hasInitialLoad && timelineRef.current) {
       const currentWeekElement = timelineRef.current.querySelector(`[data-week="${currentWeekId}"]`)
       if (currentWeekElement) {
-        currentWeekElement.scrollIntoView({ behavior: 'instant', block: 'start' })
+        // Only scroll if the user has interacted with the timeline
+        const isVisible = currentWeekElement.getBoundingClientRect().top >= 0 && 
+                         currentWeekElement.getBoundingClientRect().bottom <= window.innerHeight
+        if (!isVisible) {
+          // Don't auto-scroll on initial load
+        }
       }
     }
-  }, [currentWeekId])
+  }, [currentWeekId, hasInitialLoad])
   
   const handleDayToggle = (weekId: string, dayKey: string) => {
     setOpenDayKeys(prev => ({
