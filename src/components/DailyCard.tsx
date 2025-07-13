@@ -71,8 +71,13 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
       onDragStart: () => {
         isSwipingRef.current = false
       },
-      onDrag: ({ movement: [mx], direction: [dx], velocity: [vx], cancel }) => {
+      onDrag: ({ movement: [mx], direction: [dx], velocity: [vx], cancel, event }) => {
         if (isSwipingRef.current) return // Already handled this swipe
+        
+        // Prevent scrolling during horizontal swipe
+        if (Math.abs(mx) > 20) {
+          event.preventDefault()
+        }
         
         if (Math.abs(mx) > 40 || Math.abs(vx) > 0.5) {
           isSwipingRef.current = true
@@ -95,6 +100,8 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
       drag: {
         axis: 'x',
         threshold: 10,
+        preventScroll: true,
+        pointer: { touch: true },
       },
     }
   )
@@ -115,7 +122,7 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
            transition={{ duration: 0.2 }}
            className="bg-card border rounded-lg shadow-sm overflow-hidden"
          >
-           <div {...bind()} className="h-full w-full">
+           <div {...bind()} className="h-full w-full" style={{ touchAction: 'pan-y' }}>
           {/* Header */}
           <div className="px-4 py-3 border-b bg-gradient-to-r from-baby-pink-50 to-navy-50 border-baby-pink-200">
             <div className="flex items-center justify-between">
@@ -127,7 +134,10 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={onCalendarClick}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onCalendarClick()
+                  }}
                   className="hidden md:flex text-navy-600 hover:text-navy-800 hover:bg-baby-pink-100"
                 >
                   <Calendar className="h-4 w-4" />
@@ -153,7 +163,10 @@ export function DailyCard({ className, onCalendarClick, selectedDate }: DailyCar
           <div className="px-4 py-3 border-t border-baby-pink-200 bg-gradient-to-r from-white to-baby-pink-50">
             <Button
               variant={isCompleted ? 'default' : 'outline'}
-              onClick={handleToggleComplete}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleToggleComplete()
+              }}
               className={cn(
                 "w-full transition-all duration-200",
                 isCompleted 
