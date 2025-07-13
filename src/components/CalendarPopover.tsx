@@ -54,15 +54,14 @@ export function CalendarPopover({ trigger, onDateSelect }: CalendarPopoverProps)
     }
   }, [open])
   
-  // Get date range for the plan
-  const planStartDate = new Date(isoKeys[0])
-  const planEndDate = new Date(isoKeys[isoKeys.length - 1])
-  
   // Get months that contain plan dates
   const months = useMemo(() => {
+    const planStart = new Date(isoKeys[0])
+    const planEnd = new Date(isoKeys[isoKeys.length - 1])
+    
     const monthsList = []
-    const start = startOfMonth(planStartDate)
-    const end = endOfMonth(planEndDate)
+    const start = startOfMonth(planStart)
+    const end = endOfMonth(planEnd)
     
     let currentMonth = start
     while (currentMonth <= end) {
@@ -71,7 +70,7 @@ export function CalendarPopover({ trigger, onDateSelect }: CalendarPopoverProps)
     }
     
     return monthsList
-  }, [planStartDate, planEndDate])
+  }, [isoKeys])
   
   const getDateStatus = (date: Date) => {
     const dateKey = format(date, 'yyyy-MM-dd')

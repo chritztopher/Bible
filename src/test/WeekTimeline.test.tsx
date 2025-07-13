@@ -9,7 +9,7 @@ vi.mock('../hooks/usePlan', () => ({
     todayKey: '2025-07-13',
     getDayLabel: (dateKey: string) => `Day ${['2025-07-13', '2025-07-14', '2025-07-15'].indexOf(dateKey) + 1}`,
     getFormattedDate: (dateKey: string) => 'Mon Jul 13',
-    getReadingsForDay: () => ['Gen 1-3', 'Gen 4-7', 'Gen 8-11', 'Job 1-5']
+    getReadingsForDay: (_dateKey: string) => ['Gen 1-3', 'Gen 4-7', 'Gen 8-11', 'Job 1-5']
   })
 }))
 
