@@ -5,18 +5,21 @@ import { DayDisclosure } from './DayDisclosure'
 
 interface DayRowProps {
   dayKey: string
+  dayNumber: number
+  reading: string
   isToday: boolean
   completed: boolean
   open: boolean
   onToggle: (key: string) => void
 }
 
-export function DayRow({ dayKey, isToday, completed, open, onToggle }: DayRowProps) {
-  const { getReadingsForDay, getDayLabel, getFormattedDate } = usePlan()
+export function DayRow({ dayKey, dayNumber, reading, isToday, completed, open, onToggle }: DayRowProps) {
+  const { getDayLabel, getFormattedDate } = usePlan()
   
-  const readings = getReadingsForDay(dayKey)
-  const dayLabel = getDayLabel(dayKey)
-  const formattedDate = getFormattedDate(dayKey)
+  // Use the passed reading instead of fetching it
+  const readings = reading ? [reading] : []
+  const dayLabel = getDayLabel(dayNumber) // Use dayNumber directly
+  const formattedDate = getFormattedDate(dayNumber) // Use dayNumber directly
   
   // Create preview text for collapsed state
   const previewText = readings.length > 2 
@@ -73,14 +76,14 @@ export function DayRow({ dayKey, isToday, completed, open, onToggle }: DayRowPro
                 'font-medium text-sm text-navy-800',
                 isToday && 'font-semibold'
               )}>
-                {dayLabel}
+                Day {dayNumber} - {dayLabel}
               </span>
               <span className="text-xs text-navy-600">
                 {formattedDate}
               </span>
             </div>
             <ChevronDown className={cn(
-              'w-4 h-4 text-navy-400 group-hover:text-navy-600 transition-all',
+              'w-4 h-4 text-navy-400 group-hover:text-navy-600 transition-all duration-200',
               open ? 'rotate-180' : 'rotate-0'
             )} />
           </div>

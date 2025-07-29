@@ -1,47 +1,52 @@
-import { motion } from 'framer-motion'
-import { cn } from '@/lib/utils'
+import { useMemo } from 'react'
 
 interface ProgressRingProps {
   percent: number
   className?: string
 }
 
-export function ProgressRing({ percent, className }: ProgressRingProps) {
-  // Ring dimensions
-  const size = 120
-  const strokeWidth = 4
-  const radius = (size - strokeWidth) / 2
-  
-  // Calculate segments for 98 days
-  const totalSegments = 98
-  const segmentAngle = 360 / totalSegments
-  const gapAngle = segmentAngle * 0.1 // 10% gap between segments
-  const actualSegmentAngle = segmentAngle - gapAngle
-  
-  // Calculate how many segments should be filled
+export function ProgressRing({ percent, className = '' }: ProgressRingProps) {
+  const radius = 140
+  const strokeWidth = 8
+  const normalizedRadius = radius - strokeWidth * 2
+
+  // Number of segments (mimicking the original segmented design)
+  const totalSegments = 60
   const filledSegments = Math.floor((percent / 100) * totalSegments)
-  
-  // Convert angle to radians and calculate arc paths
+  const segmentAngle = 360 / totalSegments
+  const gapAngle = 2 // degrees between segments
+  const actualSegmentAngle = segmentAngle - gapAngle
+
   const createSegmentPath = (startAngle: number, endAngle: number) => {
-    const start = (startAngle * Math.PI) / 180
-    const end = (endAngle * Math.PI) / 180
+    const startAngleRad = (startAngle - 90) * (Math.PI / 180)
+    const endAngleRad = (endAngle - 90) * (Math.PI / 180)
     
-    const x1 = size / 2 + radius * Math.cos(start)
-    const y1 = size / 2 + radius * Math.sin(start)
-    const x2 = size / 2 + radius * Math.cos(end)
-    const y2 = size / 2 + radius * Math.sin(end)
+    const x1 = radius + normalizedRadius * Math.cos(startAngleRad)
+    const y1 = radius + normalizedRadius * Math.sin(startAngleRad)
+    const x2 = radius + normalizedRadius * Math.cos(endAngleRad)
+    const y2 = radius + normalizedRadius * Math.sin(endAngleRad)
     
-    const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0
+    const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1'
     
-    return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`
+    return `M ${x1} ${y1} A ${normalizedRadius} ${normalizedRadius} 0 ${largeArcFlag} 1 ${x2} ${y2}`
   }
-  
+
+  const segmentPaths = useMemo(() => {
+    return Array.from({ length: filledSegments }, (_, i) => {
+      const startAngle = i * segmentAngle
+      const endAngle = startAngle + actualSegmentAngle
+      return {
+        path: createSegmentPath(startAngle, endAngle),
+        delay: i * 0.02
+      }
+    })
+  }, [filledSegments, segmentAngle, actualSegmentAngle])
+
   return (
-    <div className={cn('relative', className)}>
+    <div className={`relative inline-flex items-center justify-center ${className}`}>
       <svg
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
+        height={radius * 2}
+        width={radius * 2}
         className="transform -rotate-90"
       >
         {/* Background segments */}
@@ -54,42 +59,40 @@ export function ProgressRing({ percent, className }: ProgressRingProps) {
               key={`bg-${i}`}
               d={createSegmentPath(startAngle, endAngle)}
               fill="none"
-              stroke="rgb(148 163 184)" // slate-400
+              stroke="rgb(229 231 235)" // gray-200
               strokeWidth={strokeWidth}
               strokeLinecap="round"
-              className="opacity-30"
             />
           )
         })}
-        
-        {/* Individual completed segments */}
-        {Array.from({ length: filledSegments }, (_, i) => {
-          const startAngle = i * segmentAngle
-          const endAngle = startAngle + actualSegmentAngle
-          
-          return (
-            <motion.path
-              key={`filled-${i}`}
-              d={createSegmentPath(startAngle, endAngle)}
-              fill="none"
-              stroke="rgb(34 197 94)" // emerald-500
-              strokeWidth={strokeWidth}
-              strokeLinecap="round"
-              initial={{ opacity: 0, pathLength: 0 }}
-              animate={{ opacity: 1, pathLength: 1 }}
-              transition={{ 
-                duration: 0.3,
-                delay: i * 0.02
-              }}
-            />
-          )
-        })}
+
+        {/* Individual completed segments with CSS animation */}
+        {segmentPaths.map((segment, i) => (
+          <path
+            key={`filled-${i}`}
+            d={segment.path}
+            fill="none"
+            stroke="rgb(34 197 94)" // emerald-500
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            className="progress-segment-animate"
+            style={{
+              animationDelay: `${segment.delay}s`
+            }}
+          />
+        ))}
       </svg>
-      
+
       {/* Center content */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <div className="text-2xl font-bold">{Math.round(percent)}%</div>
-        <div className="text-xs text-muted-foreground">complete</div>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-3xl font-bold text-navy-800">
+            {Math.round(percent)}%
+          </div>
+          <div className="text-sm text-navy-600">
+            Complete
+          </div>
+        </div>
       </div>
     </div>
   )
