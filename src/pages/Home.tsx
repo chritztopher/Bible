@@ -10,12 +10,11 @@ import { CalendarPopover } from '@/components/CalendarPopover'
 import { Button } from '@/components/ui/button'
 
 export default function Home() {
-  const { isoKeys } = usePlan()
+  const { totalDays } = usePlan() // Updated to use totalDays (365) directly
   const { getCompletionPercentage, completedCount } = useProgress()
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const timelineRef = useRef<HTMLDivElement>(null)
   
-  const totalDays = isoKeys.length
   const completionPercentage = getCompletionPercentage(totalDays)
   
   // Ensure page loads at the top

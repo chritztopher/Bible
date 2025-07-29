@@ -12,7 +12,7 @@ interface WeekAccordionProps {
 }
 
 export function WeekAccordion({ className, onDayClick }: WeekAccordionProps) {
-  const { isoKeys, todayKey } = usePlan()
+  const { weeks, todayDayNumber, todayKey } = usePlan()
   const { isDone } = useProgress()
   const timelineRef = useRef<HTMLDivElement>(null)
   const [hasInitialLoad, setHasInitialLoad] = useState(false)
@@ -20,45 +20,34 @@ export function WeekAccordion({ className, onDayClick }: WeekAccordionProps) {
   // Track which day is open in each week (one-open rule)
   const [openDayKeys, setOpenDayKeys] = useState<Record<string, string | null>>({})
   
-  // Group days into weeks (7 days each)
-  const weeks = useMemo(() => {
-    const weekGroups = []
-    for (let i = 0; i < isoKeys.length; i += 7) {
-      const weekKeys = isoKeys.slice(i, i + 7)
-      const weekNumber = Math.floor(i / 7) + 1
-      const startDay = i + 1
-      const endDay = Math.min(i + 7, isoKeys.length)
+  // Add completion data to weeks from usePlan
+  const weeksWithCompletion = useMemo(() => {
+    return weeks.map((week) => {
+      const completedDays = week.days.filter(day => {
+        const dateKey = day.date.toISOString().split('T')[0]
+        return isDone(dateKey)
+      }).length
       
-      // Calculate completion for this week
-      const completedDays = weekKeys.filter(key => isDone(key)).length
-      const totalDays = weekKeys.length
-      const completionPercentage = (completedDays / totalDays) * 100
+      const completionPercentage = (completedDays / week.days.length) * 100
       
-      weekGroups.push({
-        id: `week-${weekNumber}`,
-        number: weekNumber,
-        keys: weekKeys,
-        startDay,
-        endDay,
+      return {
+        ...week,
         completedDays,
-        totalDays,
+        totalDays: week.days.length,
         completionPercentage
-      })
-    }
-    return weekGroups
-  }, [isoKeys, isDone])
+      }
+    })
+  }, [weeks, isDone])
   
-  // Find current week
+  // Find current week based on today's day number
   const currentWeekId = useMemo(() => {
-    const todayIndex = isoKeys.indexOf(todayKey)
-    if (todayIndex >= 0) {
-      const weekNumber = Math.floor(todayIndex / 7) + 1
-      return `week-${weekNumber}`
-    }
-    return 'week-1'
-  }, [isoKeys, todayKey])
+    const currentWeek = weeksWithCompletion.find(week => 
+      week.days.some(day => day.day === todayDayNumber)
+    )
+    return currentWeek ? `week-${currentWeek.week}` : 'week-1'
+  }, [weeksWithCompletion, todayDayNumber])
   
-  // Initialize open day for current week to today
+  // Initialize open day for current week
   useEffect(() => {
     if (todayKey && currentWeekId) {
       setOpenDayKeys(prev => ({
@@ -107,52 +96,59 @@ export function WeekAccordion({ className, onDayClick }: WeekAccordionProps) {
     <div ref={timelineRef} className={cn('w-full', className)}>
       <Accordion 
         type="multiple" 
-        defaultValue={window.innerWidth >= 1024 ? weeks.map(w => w.id) : [currentWeekId]}
+        defaultValue={[currentWeekId]}
         className="space-y-2"
       >
-        {weeks.map((week) => (
-          <AccordionItem key={week.id} value={week.id} data-week={week.id}>
-            <AccordionTrigger className="hover:no-underline px-4">
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center space-x-3">
-                  <span className="font-semibold">Week {week.number}</span>
-                  <span className="text-sm text-muted-foreground">
-                    Days {week.startDay}-{week.endDay}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <span className="text-sm font-medium">
-                    {week.completedDays}/{week.totalDays} completed
-                  </span>
-                  <Progress 
-                    value={week.completionPercentage} 
-                    className="w-20 h-2"
-                  />
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="px-4 pb-4">
-              <ul className="space-y-1">
-                {week.keys.map((dateKey) => {
-                  const isToday = dateKey === todayKey
-                  const completed = isDone(dateKey)
-                  const open = openDayKeys[week.id] === dateKey
-                  
-                  return (
-                    <DayRow
-                      key={dateKey}
-                      dayKey={dateKey}
-                      isToday={isToday}
-                      completed={completed}
-                      open={open}
-                      onToggle={(key) => handleDayToggle(week.id, key)}
+        {weeksWithCompletion.map((week) => {
+          const weekId = `week-${week.week}`
+          
+          return (
+            <AccordionItem key={weekId} value={weekId} data-week={weekId}>
+              <AccordionTrigger className="hover:no-underline px-4">
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center space-x-3">
+                    <span className="font-semibold">Week {week.week}</span>
+                    <span className="text-sm text-muted-foreground">
+                      Days {week.days[0]?.day}-{week.days[week.days.length - 1]?.day}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <span className="text-sm font-medium">
+                      {week.completedDays}/{week.totalDays} completed
+                    </span>
+                    <Progress 
+                      value={week.completionPercentage} 
+                      className="w-20 h-2"
                     />
-                  )
-                })}
-              </ul>
-            </AccordionContent>
-          </AccordionItem>
-        ))}
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4">
+                <ul className="space-y-1">
+                  {week.days.map((day) => {
+                    const dateKey = day.date.toISOString().split('T')[0]
+                    const isToday = day.day === todayDayNumber
+                    const completed = isDone(dateKey)
+                    const open = openDayKeys[weekId] === dateKey
+                    
+                    return (
+                      <DayRow
+                        key={dateKey}
+                        dayKey={dateKey}
+                        dayNumber={day.day}
+                        reading={day.reading}
+                        isToday={isToday}
+                        completed={completed}
+                        open={open}
+                        onToggle={(key) => handleDayToggle(weekId, key)}
+                      />
+                    )
+                  })}
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
+          )
+        })}
       </Accordion>
     </div>
   )
